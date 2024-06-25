@@ -1,7 +1,9 @@
-import { Container, VStack, Heading, Text, Box, Image, SimpleGrid, IconButton, Button } from "@chakra-ui/react";
+import { Container, VStack, Heading, Text, Box, Image, SimpleGrid, IconButton, Button, HStack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaHeart } from "react-icons/fa";
+
+import { FaStar } from "react-icons/fa";
 
 const Index = () => {
   const [recipes, setRecipes] = useState([]);
@@ -10,6 +12,24 @@ const Index = () => {
     const storedRecipes = JSON.parse(localStorage.getItem("recipes")) || [];
     setRecipes(storedRecipes);
   }, []);
+  const handleRating = (recipeId, rating) => {
+    const updatedRecipes = recipes.map((recipe) => {
+      if (recipe.id === recipeId) {
+        const newRatings = [...recipe.ratings, rating];
+        return { ...recipe, ratings: newRatings };
+      }
+      return recipe;
+    });
+    setRecipes(updatedRecipes);
+    localStorage.setItem("recipes", JSON.stringify(updatedRecipes));
+  };
+
+  const calculateAverageRating = (ratings) => {
+    if (ratings.length === 0) return 0;
+    const sum = ratings.reduce((a, b) => a + b, 0);
+    return (sum / ratings.length).toFixed(1);
+  };
+
   return (
     <Container maxW="container.xl" py={10}>
       <VStack spacing={8}>
@@ -31,6 +51,18 @@ const Index = () => {
                   {recipe.title}
                 </Heading>
                 <Text mb={4}>{recipe.description}</Text>
+                <HStack spacing={1} mb={4}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <IconButton
+                      key={star}
+                      aria-label={`Rate ${star} stars`}
+                      icon={<FaStar />}
+                      colorScheme={recipe.ratings.includes(star) ? "yellow" : "gray"}
+                      onClick={() => handleRating(recipe.id, star)}
+                    />
+                  ))}
+                </HStack>
+                <Text mb={4}>Average Rating: {calculateAverageRating(recipe.ratings)}</Text>
                 <IconButton aria-label="Like" icon={<FaHeart />} size="lg" colorScheme="red" />
               </Box>
             </Box>

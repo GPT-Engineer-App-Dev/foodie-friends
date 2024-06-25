@@ -27,6 +27,7 @@ const SubmitRecipe = () => {
       title,
       description,
       image: URL.createObjectURL(image),
+      ratings: [],
     };
 
     const existingRecipes = JSON.parse(localStorage.getItem("recipes")) || [];
